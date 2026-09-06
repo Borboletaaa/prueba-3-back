@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Proyecto extends Model
 {
+    use HasFactory;
+
+    protected $table = 'proyectos';
+
     protected $fillable = [
         'nombre',
         'fecha_inicio',
@@ -16,13 +21,10 @@ class Proyecto extends Model
         'created_by',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'fecha_inicio' => 'date',
-            'monto' => 'decimal:2',
-        ];
-    }
+    protected $casts = [
+        'fecha_inicio' => 'date:Y-m-d',
+        'monto' => 'decimal:2',
+    ];
 
     public function creador(): BelongsTo
     {

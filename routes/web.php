@@ -56,4 +56,15 @@ Route::middleware('auth')->group(function () {
     // Gestión de proyectos
     Route::get('/proyectos', [ProyectoController::class, 'index'])
     ->name('proyectos.index');
+
+//Se deberian agregar para la implementacion web
+    
+//    Route::prefix('api')->group(function () {
+//    Route::get('/proyectos', [ProyectoController::class, 'index']);
+//    Route::post('/proyectos', [ProyectoController::class, 'store']);
+//    Route::get('/proyectos/{id}', [ProyectoController::class, 'show']);
+//    Route::put('/proyectos/{id}', [ProyectoController::class, 'update']);
+//    Route::patch('/proyectos/{id}', [ProyectoController::class, 'update']);
+//    Route::delete('/proyectos/{id}', [ProyectoController::class, 'destroy']);
+//});
 });
