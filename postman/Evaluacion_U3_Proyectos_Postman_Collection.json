@@ -1,0 +1,374 @@
+{
+  "info": {
+    "_postman_id": "c98ea698-fb76-4b67-8f2d-779ac9c514fb",
+    "name": "Evaluacion U3 - API Proyectos CRUD",
+    "description": "Coleccion de pruebas para la Evaluacion Unidad 3. Cubre creacion, listado, busqueda por ID, actualizacion y eliminacion de proyectos, incluyendo casos 404 y validaciones requeridas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "proyectoId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "usuarioId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "idInexistente",
+      "value": "999999",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Listar proyectos (base vacia o con registros) - 200",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('La respuesta es un arreglo', function () {",
+              "    pm.expect(pm.response.json()).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos"
+      },
+      "response": []
+    },
+    {
+      "name": "02 - Crear proyecto valido - 201",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "const proyecto = pm.response.json();",
+              "pm.test('Devuelve el proyecto creado con todos los campos principales', function () {",
+              "    pm.expect(proyecto).to.have.property('id');",
+              "    pm.expect(proyecto).to.have.property('nombre');",
+              "    pm.expect(proyecto).to.have.property('fecha_inicio');",
+              "    pm.expect(proyecto).to.have.property('estado');",
+              "    pm.expect(proyecto).to.have.property('responsable');",
+              "    pm.expect(proyecto).to.have.property('monto');",
+              "    pm.expect(proyecto).to.have.property('created_by');",
+              "});",
+              "pm.collectionVariables.set('proyectoId', proyecto.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Sistema de gestion de proyectos\",\n  \"fecha_inicio\": \"2026-09-06\",\n  \"estado\": \"En desarrollo\",\n  \"responsable\": \"Johnny Villarreal\",\n  \"monto\": 1500000,\n  \"created_by\": {{usuarioId}}\n}"
+        },
+        "url": "{{baseUrl}}/proyectos"
+      },
+      "response": []
+    },
+    {
+      "name": "03 - Crear proyecto sin campos requeridos - 422",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Rechaza la solicitud con 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "pm.test('La respuesta contiene errores de validacion', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('errors');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"\",\n  \"fecha_inicio\": \"\",\n  \"estado\": \"\",\n  \"responsable\": \"\",\n  \"monto\": \"\",\n  \"created_by\": \"\"\n}"
+        },
+        "url": "{{baseUrl}}/proyectos"
+      },
+      "response": []
+    },
+    {
+      "name": "04 - Buscar proyecto por ID existente - 200",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Devuelve el proyecto solicitado', function () {",
+              "    const proyecto = pm.response.json();",
+              "    pm.expect(proyecto).to.have.property('id');",
+              "    pm.expect(String(proyecto.id)).to.eql(String(pm.collectionVariables.get('proyectoId')));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos/{{proyectoId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "05 - Buscar proyecto por ID inexistente - 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Devuelve un mensaje de proyecto no encontrado', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('message');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos/{{idInexistente}}"
+      },
+      "response": []
+    },
+    {
+      "name": "06 - Actualizar proyecto existente - 200",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Devuelve los datos actualizados', function () {",
+              "    const proyecto = pm.response.json();",
+              "    pm.expect(proyecto.nombre).to.eql('Sistema de gestion actualizado');",
+              "    pm.expect(proyecto.estado).to.eql('Finalizado');",
+              "    pm.expect(String(proyecto.monto)).to.match(/^1800000(\\.00)?$/);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Sistema de gestion actualizado\",\n  \"fecha_inicio\": \"2026-09-10\",\n  \"estado\": \"Finalizado\",\n  \"responsable\": \"Johnny Villarreal\",\n  \"monto\": 1800000,\n  \"created_by\": {{usuarioId}}\n}"
+        },
+        "url": "{{baseUrl}}/proyectos/{{proyectoId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "07 - Actualizar proyecto inexistente - 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Devuelve un mensaje de proyecto no encontrado', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('message');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Proyecto inexistente\",\n  \"fecha_inicio\": \"2026-09-10\",\n  \"estado\": \"En desarrollo\",\n  \"responsable\": \"Johnny Villarreal\",\n  \"monto\": 100000,\n  \"created_by\": {{usuarioId}}\n}"
+        },
+        "url": "{{baseUrl}}/proyectos/{{idInexistente}}"
+      },
+      "response": []
+    },
+    {
+      "name": "08 - Eliminar proyecto existente - 204",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 204 No Content', function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "pm.test('La respuesta esta vacia', function () {",
+              "    pm.expect(pm.response.text()).to.eql('');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos/{{proyectoId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "09 - Confirmar proyecto eliminado - 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos/{{proyectoId}}"
+      },
+      "response": []
+    },
+    {
+      "name": "10 - Eliminar proyecto inexistente - 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Responde con 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Devuelve un mensaje de proyecto no encontrado', function () {",
+              "    pm.expect(pm.response.json()).to.have.property('message');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/proyectos/{{idInexistente}}"
+      },
+      "response": []
+    }
+  ]
+}
